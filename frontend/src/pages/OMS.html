@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMS - Home</title>
+    <script  type="module" src="/src/js/ordersController.js"></script>
+    <script type="module" src="/src/js/constants.js"></script>
+    <script src="/src/js/pageController"></script>
+</head>
+<body>
+<div class="wrapper">
+    <header>
+        <div class="container">
+         <h1>Annalect Engineering Ltd.</h1>
+         <h3>Order Management System</h3>
+            <nav>
+            <ul>
+                <li> <a href="PIMS.html">PIMS</a></li>                    
+                <li> <a href="EMS.html">EMS</a></li>
+                <li><a id="logout-btn">logout</a></li>
+            </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+      <div class="overlay" id="overlay"></div>
+      <div class="container-confirmation" id="confirmation">
+        <h3 id="confirm-title"></h3>
+        <div class="btn-wrap">  
+        <button type="button" id="yesbtn" class="btn-grad" >Yes</button>
+        <button type="button" id= "nobtn" class="btn-grad" >No</button></div>    
+    </div>
+        <aside class="sidebar">
+          <ul>
+            <li class="active" id="orders">Orders</li>
+            <li id="addord">Add an Order</li>
+            <li id="summary">Summary</li>
+          </ul>
+        </aside>
+        <main class="main-content">
+            <div id="orders-content" class="content active">
+              <div class="ordheadgrp">
+                <h2 id="ordHead">List of All Orders</h2>
+                <div id="tamt2"></div>
+              </div>
+                <table id="disp-table">
+                    <thead>
+                        <tr>
+                            <td>Order Id</td>
+                            <td>Name</td>
+                            <td>Contact</td>
+                            <td>Products</td>
+                            <td>Total Amount</td>
+                            <td>Action</td>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+          <div id="addord-content" class="content">
+
+            <div id="addorderdiv">
+                <div class="product">
+                  <h2>Add an Order</h2>
+                  <form id="add-form">
+                    <div class="formgroup">
+                        <label for="cname">Name:</label>
+                        <input type="text" id="cname">
+                    </div>
+                    <div class="formgroup">
+                        <label for="contact">Address:</label>
+                        <input type="text" id="contact"> 
+                    </div>
+                    <div class="formgroup">
+                        <label for="productDropDown">Products</label>
+                        <select id="productDropDown">
+                            <option value="select" selected>Select Product</option>
+                        </select>
+                    </div>
+                    <div class="btnwrap">
+                        <button type="button" id="addProduct">Add to Cart</button>
+                        <button type="submit" id="placeOrder">Place Order</button>
+                    </div>
+                </form>
+                <div id="tamt"></div>
+                <div id="messageDiv"></div>
+                </div>
+                <div id="productstab" >
+                    <h3>Cart</h3>
+                    <table id="disp-table-pro">
+                        <thead>
+                            <tr>
+                                <td>Id</td>
+                                <td>Name</td>
+                                <td>Price</td>
+                                <td>Action</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <ul id="productList"></ul>
+                </div>
+            </div>
+        </div>
+        <div id="summary-content" class="content">
+            <h2 id="ordHead2">Get Order Summary</h2>
+            <div class="ordheadgrp">
+              <div class="sum-input">
+                  <label for="cname-sum">Enter Customer Name</label>
+                  <input type="text" id="cname-sum"></input>
+              </div>
+              <div id="tamt3"></div>
+            </div>
+            <table id="disp-table2">
+                <thead>
+                    <tr>
+                        <td>Order Id</td>
+                        <td>Name</td>
+                        <td>Contact</td>
+                        <td>Products</td>
+                        <td>Total Amount</td>
+                        <td>Action</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+          </div>
+        </main>
+    <footer>   
+        <div class="container">
+           <p>© 2024 Annalect Engineering Ltd. (Omnicom Global Solutions). All rights reserved.</p> 
+        </div> 
+    </footer>
+</div>
+</body>
+<link rel="stylesheet" href="/src/css/main-style.css">
+<link rel="stylesheet" href="/src/css/pims.css">
+</html>

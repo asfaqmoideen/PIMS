@@ -3,9 +3,9 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     root: './',
     build: {
-        outDir: '../ManufacturingCompany/dist',
+        outDir: '../frontend/dist',
     },
     server: {
-        port: 7000, // Replace 3000 with your desired port number
+        port: 7001, // Replace 3000 with your desired port number
     }
 });

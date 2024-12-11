@@ -1,4 +1,6 @@
-import { productsArray } from "./constants";
+// import { productsArray } from "./constants";
+
+
 class Product{
     constructor(productId, productName, productPrice, productQuantity){
         this.id = productId;
@@ -7,46 +9,54 @@ class Product{
         this.quantity = productQuantity; 
     }
 }
-
-
-class ProductController
-{   
-
-    addProduct(productToBeAdded){
-        if(productToBeAdded.name && productToBeAdded.id){
-            const existingproduct = productsArray.find(p=> p.id==productToBeAdded.id);
-            if(!existingproduct){
-                productsArray.push(productToBeAdded);
-                return true;
-            }
-            return false;
-        }
+class AddProduct{
+    constructor(productName, productPrice, productQuantity){
+        this.name = productName;
+        this.price = productPrice;
+        this.quantity = productQuantity; 
     }
-
-
-
-updateProduct(product){
-    console.log(product);
-    if(product.name || product.price){
-    const productToBeEdited = productsArray.find(p=> p.id==product.id);
-    if(productToBeEdited){
-        productToBeEdited.name = product.name.length === 0 ? productToBeEdited.name : product.name;
-        productToBeEdited.price = product.price.length == 0 ? productToBeEdited.price: product.price;
-        productToBeEdited.quantity = product.quantity.length == 0 ? productToBeEdited.quantity: product.quantity;
-        return true;
-    }
-    }
-    return false;
 }
 
+import { getProducts, addProduct, updateProduct, deleteProduct } from "./productApiService.js";
 
-removeProduct(product){
-    const productToBeRemoved = productsArray.findIndex(p=> p.id==product.id);
-    productsArray.splice(productToBeRemoved, 1);
-}
-applyDiscount(Percentage){
-    const dicountedArray = productsArray.map(product => {
-            product.discounprice = product.price - (product.price*Percentage)/100;
+class ProductController {
+
+  async fetchProducts() {
+    this.products = await getProducts();
+    return this.products;
+  }
+
+  async addNewProduct(product) {
+    const addedProduct = await addProduct(product);
+  //  this.products.push(addedProduct);
+    return addedProduct;
+  }
+
+  async updateExistingProduct(id, updatedProduct) {
+    console.log(updatedProduct);
+    const updated = await updateProduct(id, updatedProduct);
+    // const productIndex = this.products.find(p => p.id === id);
+    // if (productIndex) {
+    // console.log(productIndex);
+    //   Object.assign(productIndex, updatedProduct);
+    // }
+    return updated;
+  }
+
+async deleteProduct(id) {
+    const isDeleted = await deleteProduct(id);
+    // if (isDeleted) {
+    //   this.products = this.products.filter((product) => product.id !== id);
+    // }
+    return isDeleted;
+  }
+
+
+
+async applyDiscount(percentage){
+    const productsInDb = await this.fetchProducts();
+    const dicountedArray = productsInDb.map(product => {
+            product.discounprice = product.price - (product.price*percentage)/100;
             return product;
         });
     console.log(dicountedArray);
@@ -54,11 +64,11 @@ applyDiscount(Percentage){
 }
 }
 
-
 // --------------------------UI Funtions-------------------------------------
 
-document.addEventListener("DOMContentLoaded", ()=>{
-    const uiLogic = new GridUI();
+document.addEventListener("DOMContentLoaded", async()=>{
+    const productLogic = new ProductController();
+    const uiLogic = new GridUI(productLogic);
     uiLogic.renderProducts();
 
     const addp = document.getElementById('add-form');
@@ -76,21 +86,21 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 
 class GridUI{
-    constructor(){
-        this.productLogic=new ProductController();
+    constructor(prodlogic){
+        this.productLogic= prodlogic;
     }
     
-    tryAddingProduct(addform){
+    async tryAddingProduct(addform){
 
-        if(this.productLogic.addProduct(new Product(addform.pid.value,
-            addform.name.value,addform.price.value, addform.quantity.value))){
+        if(addform){
+            const response = await this.productLogic.addNewProduct(new AddProduct(
+            addform.name.value,addform.price.value, addform.quantity.value))
                 this.renderProducts();
                 addform.reset();
-                this.displayMessage(`Product Added !`, "add");
+                this.displayMessage(`Product Added!`, "add");
                 return;
             }
         this.displayMessage("Product not Added !, Id should be unique", "add");
-
     }
 
     displayProductsTable(products) {
@@ -125,10 +135,11 @@ class GridUI{
         setTimeout(function(){spanItem.textContent = ""}, 3000);
     }
 
-    renderProducts() {
+    async renderProducts() {
         const grid = document.getElementById("product-grid");
         grid.textContent = "";
-        productsArray.forEach((product) => {
+        const productsInDb =  await this.productLogic.fetchProducts();
+        productsInDb.forEach((product) => {
             const tile = document.createElement("div");
             tile.className = "tile";
             const title = document.createElement('h3');
@@ -147,24 +158,25 @@ class GridUI{
             actiondiv.className = "actions";
             const editbtn = document.createElement('button');
             editbtn.textContent = `📝`;
-            editbtn.addEventListener('click', ()=> {
-                this.editProduct(product);
+            editbtn.addEventListener('click', async()=> {
+                await this.editProduct(product);
+                this.displayMessage("Product Edited!","edit");
                 this.renderProducts();
             })
             actiondiv.appendChild(editbtn);
 
             const rembtn = document.createElement('button');
             rembtn.textContent = `🗑️`;
-            rembtn.addEventListener('click', ()=> {
-                this.getUserConfirmation(`to delete ${product.name}`)
-                .then((result=>{
+            rembtn.addEventListener('click', async ()=> {
+                const result = await this.getUserConfirmation(`to delete ${product.name}`);
                     if(result){
-                        this.productLogic.removeProduct(product);
+                        await this.productLogic.deleteProduct(product.id);
                         this.renderProducts();
                         this.displayMessage("Product Removed!","edit");
                     }
-                }));
-            })
+                 }
+                );
+                
             actiondiv.appendChild(rembtn);
 
             tile.appendChild(actiondiv);
@@ -173,23 +185,28 @@ class GridUI{
         });
     }
       
-    editProduct(product){
+     async editProduct(product){
         const eform = document.getElementById("edit-form");
         const emodal = document.getElementById("edit-modal");
         const ecancelButton = document.getElementById("cancel-button");
         this.setEditFormDetails(eform, product);
 
         emodal.classList.remove("hidden");
-        eform.addEventListener("submit", (event) => {
+        return new Promise((resolve)=>{
+        eform.addEventListener("submit", async (event) => {
             event.preventDefault();
-            this.productLogic.updateProduct(new Product(eform.eid.value,eform.ename.value,eform.eprice.value, eform.equantity.value))
-            this.renderProducts();
-              emodal.classList.add("hidden");
-              this.displayMessage("Product Edited!","edit");
+            const response = await this.productLogic.updateExistingProduct(eform.eid.value, new AddProduct(eform.ename.value,eform.eprice.value, eform.equantity.value));
+            if(response){
+                resolve(true);
+            }
+            emodal.classList.add("hidden");
           });
           ecancelButton.addEventListener("click", () => {
             emodal.classList.add("hidden");
+                resolve(false);
           });
+
+        })
     }
 
     setEditFormDetails(eform, product) {
@@ -200,10 +217,10 @@ class GridUI{
         eform.equantity.value = product.quantity;
     }
 
-    tryApplyingDiscount(){
+    async tryApplyingDiscount(){
         const percent = document.getElementById("percent");
         if(percent.value < 100 && percent.value > 0){
-        this.displayProductsTable(this.productLogic.applyDiscount(percent.value));
+        this.displayProductsTable(await this.productLogic.applyDiscount(percent.value));
         this.displayMessage("Discount Applied","dis");
         }
         percent.value = "";

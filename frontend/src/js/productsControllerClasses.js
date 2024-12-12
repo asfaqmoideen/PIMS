@@ -104,29 +104,18 @@ class GridUI{
     }
 
     displayProductsTable(products) {
-        const table = document.querySelector('#disp-table tbody');
-        table.textContent = ""; 
-        products.forEach(product => {
-            const row = document.createElement('tr');
-            
-            const idCell = document.createElement('td');
-            idCell.textContent = product.id;
-            row.appendChild(idCell);
-            
-            const nameCell = document.createElement('td');
-            nameCell.textContent = product.name; 
-            row.appendChild(nameCell);
-            
-            const priceCell = document.createElement('td');
-            priceCell.textContent = `₹${product.price}`;
-            row.appendChild(priceCell);
-    
-            const discounted = document.createElement('td');
-            discounted.textContent = `₹${product.discounprice}`;
-            row.appendChild(discounted);
-            
+        const row = document.createElement('tr');
+            for(let key in product){
+                const cell = document.createElement('td');
+                if(key == 'price' || key == 'discountedPrice'){
+                    cell.textContent = `₹${product[key]}`;                    
+                }
+                else{
+                    cell.textContent = product[key];
+                }
+                row.appendChild(cell);
+            }
             table.appendChild(row); 
-        });
     }
 
     displayMessage(message, fromDiv){

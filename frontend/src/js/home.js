@@ -12,9 +12,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     document.getElementById('container2').addEventListener('click',()=>{
         document.location = "/src/pages/OMS.html";
     });
-    document.getElementById('container3').addEventListener('click',()=>{
-        document.location = "/src/pages/EMS.html";
-    });
 
 })
 class Logout{
